@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Movie Description</title>
+<link rel="stylesheet" href="{{ url_for('static', filename = 'movie-description.css')}}" />
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="prebread">
+        <li class="prelist">
+            <a href="{{ url_for('main.index')}}" title="Home">Home /</a>
+        </li>
+        <li class="prelist">
+            <a href="{{ url_for('main.movies')}}" title="Movies">Movies /</a>
+        </li>
+        {% set name = movie.movie_title %}
+        <li class="prelist">
+            <a href="{{ url_for('main.description', movie_title=movie.movie_title|urlencode) }}" title="{{ movie.movie_title }}">{{ movie.movie_title }}</a>
+        </li>
+    </div>
+    <div class="cover_img"
+        style="background-image: url('{{ movie.backdrop_path }}');">
+    </div>
+    <div class="container grid">
+
+        <div class="kolmj">
+            <a href="{{ url_for('main.watching', movie_title=movie.movie_title|urlencode) }}" class="d_play">
+                <i class="fa fa-play"></i></a>
+        </div>
+        <div class="details__khung"> 
+            <div class="details__left">
+                <div class="details__poster">
+                    <img style="border-radius: 10px; width: 178px; height: 268px;" src="{{ movie.poster_url }}" alt="">
+                </div>
+                <div class="details__vote" id="movie-reactions">Likes: {{ movie.likes }} | Dislikes {{ movie.dislikes }}</div>
+                <button class="details__like" id="like" action="like" data-movie-title="{{ movie.movie_title|urlencode }}" state = "{{ current_user.is_authenticated }}"><i class="fa-solid fa-thumbs-up"></i> Like</button>
+                <button class="details__dislike" id="dislike" action="dislike" data-movie-title="{{ movie.movie_title|urlencode }}" state = "{{ current_user.is_authenticated }}"><i class="fa-solid fa-thumbs-down"></i> Dislike</button>
+            </div>
+            <div class="details__right">
+                <div class="details__watch">
+                    <button class="details__watchnow" onclick="window.location.href='{{ url_for('main.watching', movie_title=movie.movie_title|urlencode) }}'; return false;" title="Watch now"><i class="fa-solid fa-play"></i>        Watch now</button>
+                    {% if current_user.is_authenticated and movie in current_user.movies %}
+                        {% set libraryButtonAction = 'remove' %}
+                        {% set libraryButtonText = 'Remove from library' %}
+                    {% else %}
+                        {% set libraryButtonAction = 'add' %}
+                        {% set libraryButtonText = 'Add to library' %}
+                    {% endif %}
+                    <button class="details__add" id="libraryButton" action="{{ libraryButtonAction }}" data-movie-title="{{ movie.movie_title|urlencode }}" state = "{{ current_user.is_authenticated }}"><i class="fa-solid fa-plus"></i> {{ libraryButtonText }}</button>
+                </div>
+                <h2 class="details__heading-name">{{ movie.movie_title }}</h2>
+                <div class="details__description">{{ movie.overview }}</div>
+                <div class="details__elements">
+                    <div id="details__element1">
+                            <div><b>Released:</b> {{ movie.release_date }}</div>
+                            <div><b>Genre:</b> {{ movie.genres }}</div>
+                            <div><b>Casts:</b> {{ movie.actor_1_name }}  ,  {{ movie.actor_2_name }}  ,  {{ movie.actor_3_name }}</div>
+                        </ul>
+                    </div>
+                    <div id="details__element2">
+                            <div><b>Duration:</b> {{ movie.runtime}} min</div>
+                            <div><b>Country:</b> {{ movie.origin_country }}</div>
+                            <div><b>Production:</b> {{ movie.production }}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename = 'DescriptionButtons.js')}}"></script>
+<br>
+<div class="grid">
+    <section class="film-area">
+      <div class="film-area__header">
+        <h2 class="film-area__title">You may also like</h2>
+        <div class="film-area__tabs"></div>
+      </div>
+      <div class="grid__row">
+        {% for movie in movies %}
+        <div class="grid__column-8">
+          <a href="" class="film">
+            <div class="film__poster">
+              <div class="film__quality">HD</div>
+              <img src="{{ movie.poster_url }}" alt="{{ movie.movie_title }}" class="film__img" />
+              <a href="{{ url_for('main.watching', movie_title=movie.movie_title|urlencode) }}"
+                title="{{ movie.movie_title }}">
+                <div class="film__play">
+                  <i class="fa fa-play"></i>
+                </div>
+              </a>
+            </div>
+            <div class="film__details">
+              <h3 class="film__name">
+                <a href="{{ url_for('main.description', movie_title=movie.movie_title|urlencode) }}"
+                  class="film__link" title="{{ movie.movie_title }}">
+                  {{ movie.movie_title }}
+                </a>
+              </h3>
+              <div class="film__infor">
+                <div class="film__infor--container">
+                  <span class="film__infor--year">
+                    {% if movie.release_date %} {{
+                    movie.release_date.strftime('%Y') }} {% else %} Unknown {%
+                    endif %}
+                  </span>
+                  <span class="dot"></span>
+                  <span class="film__infor--minute">
+                    {% if movie.runtime == 0 %} Unknown {% else %} {{
+                    movie.runtime }} min {% endif %}
+                  </span>
+                </div>
+                <span class="film__infor--type">Movie</span>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+{% endblock %}
